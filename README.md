@@ -1,115 +1,126 @@
-﻿# ðŸš— LocationVoitures â€” Agence de location de voitures
+# 🚗 LocationVoitures — Agence de location de voitures
 
-Site web **ASP.NET Core 10 MVC (.NET 10)** â€” suite complÃ¨te du TP SÃ©ance 2 : persistance SQL Server LocalDB, **Repository Pattern**, tÃ©lÃ©versement d'images et front vitrine dynamique.
+Site web **ASP.NET Core 10 MVC (.NET 10)** — TP Séance 2 : persistance SQL Server LocalDB, **Repository Pattern**, téléversement d'images et page d'accueil dynamique.
 
-Votre agence **LocationVoitures** met en vente une flotte dynamique : homepage vitrine exploitant la base, back-office complet pour gÃ©rer les **catÃ©gories** et la **flotte de vÃ©hicules**, avec upload d'images sur disque.
+L'agence **LocationVoitures** propose une flotte de véhicules à la location. Le site comprend :
+- une **page d'accueil vitrine** alimentée par la base de données ;
+- un **back-office** pour gérer les **catégories** et la **flotte de véhicules** ;
+- l'**upload d'images** enregistrées sur disque.
 
-## ðŸ–¸ Captures d'Ã©cran
+## 📸 Captures d'écran
 
 | Page | Description |
 | :-- | :-- |
-| <img src="screenshots/01-home.jpeg" width="200" alt="Accueil"> | **Accueil vitrine dynamique** â€” Hero animÃ©, stats en temps rÃ©el (4 catÃ©gories, 10 vÃ©hicules, 9 disponibles) et grille de cartes de vÃ©hicules |
-| <img src="screenshots/02-voiture.jpeg" width="200" alt="Flotte"> | **Flotte de vÃ©hicules** â€” Back-office avec tableau dynamique : vÃ©hicule, matricule, catÃ©gorie (chargÃ©e via `.Include`), annÃ©e, tarif et badge disponibilitÃ© |
-| <img src="screenshots/03-categories.jpeg" width="200" alt="CatÃ©gories"> | **Gestion des catÃ©gories** â€” Back-office avec tableau, images et dÃ©tails des catÃ©gories |
+| <img src="screenshots/01-home.jpeg" width="200" alt="Accueil"> | **Accueil** : hero animé, statistiques en temps réel (4 catégories, 10 véhicules, 9 disponibles) et grille de cartes de véhicules |
+| <img src="screenshots/02-voiture.jpeg" width="200" alt="Flotte"> | **Flotte de véhicules** : tableau avec véhicule, matricule, catégorie (chargée via `.Include`), année, tarif et badge de disponibilité |
+| <img src="screenshots/03-categories.jpeg" width="200" alt="Catégories"> | **Gestion des catégories** : tableau avec images et détails |
 
-## ðŸ› ï¸ Stack technique
+## 🛠️ Stack technique
 
-- **ASP.NET Core 10.0 MVC** (.NET 10, C#)
-- **Entity Framework Core 10.0.15** avec provider **SqlServer** + **LocalDB** (`(localdb)\mssqllocaldb`)
-- **Repository Pattern** : `@@IREPOCAT@@` + `@@REPO@@` (+ `@@VIREPOCAT@@` + `@@VREPOCAT@@` avec `Include`)
-- **Relation 1-N** : clÃ© Ã©trangÃ¨re `@@FKID@@` sur `Voiture` (FK) + propriÃ©tÃ© de navigation `Voitures` (inverse de `CategoryVoiture.Voitures`)
-- **Upload d'images** : `IFormFile` â†’ Ã©criture sur disque `wwwroot/uploads/categories/category_<id>.<ext>` + URL relative en base
+- **ASP.NET Core 10.0 MVC** (C#)
+- **Entity Framework Core 10.0.15** avec le provider **SQL Server** et **LocalDB** (`(localdb)\mssqllocaldb`)
+- **Repository Pattern** :
+  - `ICategoryVoitureRepository` / `CategoryVoitureRepository`
+  - `IVoitureRepository` / `VoitureRepository` (avec `.Include` pour charger la catégorie)
+- **Relation 1-N** : `Voiture` contient la clé étrangère `CategoryVoitureId` et la propriété de navigation `Category` ; `CategoryVoiture` contient la collection `Voitures`
+- **Upload d'images** : `IFormFile` → écriture dans `wwwroot/uploads/categories/category_<id>.<ext>`, l'URL relative est stockée en base
 
-## âš™ï¸ Installation & Lancement
+## ⚙️ Installation et lancement
+
+**Prérequis** : .NET 10 SDK et SQL Server LocalDB (inclus avec Visual Studio 2022).
 
 ```bash
-# Lancement direct :
+git clone https://github.com/Thamermokhtari987/location_voiture.web.git
+cd location_voiture.web
 dotnet run --urls https://localhost:5051
 ```
 
-Ou avec **Visual Studio 2022** : bouton **DÃ©marrer (F5)** â†’ page `https://localhost:5051/`.
+Ou avec **Visual Studio 2022** : bouton **Démarrer (F5)**, puis ouvrir `https://localhost:5051/`.
 
-> L'application dÃ©marre en **Development**, amorce le schÃ©ma SQL (`Database.Migrate()`) et amorce les donnÃ©es de dÃ©monstration si le catalogue est vide (4 catÃ©gories + 10 vÃ©hicules, cf. `Program.cs`).
+> Au démarrage, l'application applique les migrations (`Database.Migrate()`) et insère des données de démonstration si la base est vide (4 catégories + 10 véhicules, voir `Program.cs`).
 
-## ðŸ—ƒï¸ Base de donnÃ©es LocalDB
+## 🗃️ Base de données LocalDB
 
-ChaÃ®ne de connexion (`appsettings.json`) :
+Chaîne de connexion (`appsettings.json`) :
 
 ```
 Server=(localdb)\mssqllocaldb;Database=LocationVoituresDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
 ```
 
-Commandes EF (SÃ©ance 2 Partie 2 & 3) :
+Commandes EF Core (Séance 2, parties 2 et 3) :
 
 ```bash
-# PMC
+# Package Manager Console (Visual Studio)
 Add-Migration InitialCreate
 Update-Database
 
-# CLI
+# CLI .NET
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-> âš ï¸ Note : une base `LocationVoituresDb` existait dÃ©jÃ  dans LocalDB avec une migration antÃ©rieure (`InitialCreateCategory`). Elle a Ã©tÃ© recrÃ©e proprement avec `InitialCreate` + seed.
+> ⚠️ Une base `LocationVoituresDb` existait déjà dans LocalDB avec une ancienne migration (`InitialCreateCategory`). Elle a été recréée proprement avec `InitialCreate` + les données de démonstration.
 
-## ðŸ§ª VÃ©rifications effectuÃ©es (SÃ©ance 2)
+## ✅ Fonctionnalités réalisées
 
 - [x] Projet MVC (.NET 10) + EF Core 10
 - [x] Packages NuGet : `SqlServer`, `Tools`, `Design`
-- [x] ChaÃ®ne de connexion LocalDB dans `appsettings.json`
-- [x] `ApplicationDbContext` : `DbSet<CategoryVoiture>` (`@@DBSET1@@`) + `DbSet<Voiture>` (`@@DBSET2@@`), enregistrÃ© dans `Program.cs`
-- [x] Repository Pattern : `@@IREPOCAT@@` + `@@REPO@@` (GetAll / GetById / Add / Update / Delete / Exists) + `@@VIREPOCAT@@` + `@@VREPOCAT@@` avec `.Include`
-- [x] ModÃ¨le `CategoryVoiture` (identifiant, libellÃ©, description, URL image, collection de navigation)
-- [x] Relation 1-N : `Voiture.@@FKID@@` (FK) â€” `Voitures` sur `CategoryVoiture`
-- [x] Upload d'images (Create / Edit) : `IFormFile` â†’ Ã©criture sur disque `category_<id>` + URL relative en base
-- [x] Vues Razor complÃ¨tes : Index / Create / Edit / Details / Delete pour catÃ©gories et voitures avec validation
-- [x] Liens de navigation mis Ã  jour dans `Views/Shared/_Layout.cshtml` : Accueil / Flotte / CatÃ©gories
-- [x] Page d'accueil (Home) dynamique â€” vÃ©hicules prÃ©sents en base
-- [x] Migrations Code-First + `Update-Database` LocalDB
-- [x] Tests CRUD â€” via navigateur : crÃ©ation, modification, suppression sans erreur de console
+- [x] Chaîne de connexion LocalDB dans `appsettings.json`
+- [x] `ApplicationDbContext` avec `DbSet<CategoryVoiture>` et `DbSet<Voiture>`, enregistré dans `Program.cs`
+- [x] Repository Pattern (GetAll, GetById, Add, Update, Delete, Exists) pour les catégories et les voitures (avec `.Include`)
+- [x] Modèle `CategoryVoiture` (identifiant, libellé, description, URL de l'image, collection de navigation)
+- [x] Relation 1-N entre `CategoryVoiture` et `Voiture`
+- [x] Upload d'images (Create / Edit) sur disque + URL relative en base
+- [x] Vues Razor complètes (Index, Create, Edit, Details, Delete) avec validation, pour les catégories et les voitures
+- [x] Navigation mise à jour dans `_Layout.cshtml` : Accueil / Flotte / Catégories
+- [x] Page d'accueil dynamique (véhicules lus en base)
+- [x] Migrations Code-First + `Update-Database` sur LocalDB
+- [x] Tests CRUD via le navigateur (création, modification, suppression) sans erreur
 
-## ðŸ“ Structure du projet
+## 📁 Structure du projet
 
 ```
 LocationVoitures.Web/
-â”œâ”€â”€ Program.cs                      # DI + Database.Migrate() + seed
-â”œâ”€â”€ appsettings.json                # Connexion LocalDB
-â”œâ”€â”€ Controllers/
-â”‚   â”œâ”€â”€ HomeController.cs
-â”‚   â”œâ”€â”€ @@CATCTRL@@                 # CRUD catÃ©gories + upload images
-â”‚   â””â”€â”€ @@VOICTRL@@                 # CRUD flotte (+ SelectList catÃ©gories)
-â”œâ”€â”€ Data/
-â”‚   â””â”€â”€ ApplicationDbContext.cs     # DbSet<CategoryVoiture>, DbSet<Voiture>
-â”œâ”€â”€ Models/
-â”‚   â”œâ”€â”€ CategoryVoiture.cs
-â”‚   â””â”€â”€ Voiture.cs
-â”œâ”€â”€ Repositories/
-â”‚   â”œâ”€â”€ @@IREPOCAT@@.cs + @@REPO@@.cs
-â”‚   â””â”€â”€ @@VIREPOCAT@@.cs + @@VREPOCAT@@.cs (Include)
-â”œâ”€â”€ Views/
-â”‚   â”œâ”€â”€ Home/Index.cshtml           # Vitrine dynamique
-â”‚   â”œâ”€â”€ @@CATFOLDER@@/{Index, Create, Edit, Details, Delete}.cshtml
-â”‚   â”œâ”€â”€ @@VOIFOLDER@@/{Index, Create, Edit, Details, Delete}.cshtml
-â”‚   â””â”€â”€ Shared/_Layout.cshtml       # Navbar + footer
-â”œâ”€â”€ wwwroot/
-â”‚   â”œâ”€â”€ css/site.css
-â”‚   â”œâ”€â”€ uploads/categories/          # Images de catÃ©gories (category_<id>.svg)
-â”‚   â””â”€â”€ lib/bootstrap/, lib/jquery/
-â””â”€â”€ Migrations/InitialCreate.cs
+├── Program.cs                          # DI + Database.Migrate() + seed
+├── appsettings.json                    # Connexion LocalDB
+├── Controllers/
+│   ├── HomeController.cs
+│   ├── CategoryVoituresController.cs   # CRUD catégories + upload d'images
+│   └── VoituresController.cs           # CRUD flotte (+ SelectList des catégories)
+├── Data/
+│   └── ApplicationDbContext.cs         # DbSet<CategoryVoiture>, DbSet<Voiture>
+├── Models/
+│   ├── CategoryVoiture.cs
+│   └── Voiture.cs
+├── Repositories/
+│   ├── ICategoryVoitureRepository.cs
+│   ├── CategoryVoitureRepository.cs
+│   ├── IVoitureRepository.cs
+│   └── VoitureRepository.cs            # Utilise .Include
+├── Views/
+│   ├── Home/Index.cshtml               # Vitrine dynamique
+│   ├── CategoryVoitures/               # Index, Create, Edit, Details, Delete
+│   ├── Voitures/                       # Index, Create, Edit, Details, Delete
+│   └── Shared/_Layout.cshtml           # Navbar + footer
+├── wwwroot/
+│   ├── css/site.css
+│   ├── uploads/categories/             # category_<id>.<ext>
+│   └── lib/                            # bootstrap, jquery
+└── Migrations/                         # InitialCreate
 ```
 
-## ðŸ”„ Workflow Git
+## 🔄 Workflow Git
 
 ```bash
 git add -A
-git commit -m "TP SÃ©ance 2 : LocationVoitures.Web â€” MVC .NET 10 + EF Core 10 LocalDB + Repository Pattern + Upload images"
+git commit -m "TP Séance 2 : LocationVoitures.Web — MVC .NET 10 + EF Core 10 LocalDB + Repository Pattern + Upload images"
 git push -u origin main
 ```
 
+## 📚 Ressources
+
+- [Énoncé du TP Séance 2](https://cours-web.onebyte.tn/TP_S2/TP_ASPNET_MVC_Seance2.html)
+
 ---
 
-ðŸ’¼ Agence **LocationVoitures** â€” suite complÃ¨te du TP SÃ©ance 2.
-
-TP SÃ©ance 2 : https://cours-web.onebyte.tn/TP_S2/TP_ASPNET_MVC_Seance2.html
-
+💼 Agence **LocationVoitures** — TP Séance 2.
