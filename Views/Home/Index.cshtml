@@ -1,0 +1,98 @@
+﻿@using System.Linq
+@model IEnumerable<LocationVoitures.Web.Models.Voiture>
+
+@{
+    ViewData["Title"] = "Location Voitures — Accueil";
+}
+
+<section class="hero">
+    <div class="container hero-container">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">Votre agence Location Voitures</span>
+            <h1 class="hero-title">Louez <span class="grad">la</span> <span class="grad">véhicule</span><br><span class="grad accent">parfait</span><span class="grad"> pour vos voyages</span></h1>
+            <p class="hero-sub">
+                Parcourir notre <strong>flotte dynamique</strong> — calculée en temps réel depuis notre base de données,
+                avec marque, modèle, tarif, année et disponibilité de chaque véhicule actuellement en location.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-primary btn-lg" asp-action="Index" asp-controller="Voiture">Voir les véhicules disponibles</a>
+                <a class="btn btn-outline-light btn-lg" asp-action="Index" asp-controller="CategoryVoiture">Consulter les catégories de location</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-row">
+    <div class="stat-card">
+        <span class="stat-value">@(ViewBag.TotalCategories ?? 0)</span>
+        <span class="stat-lbl">Catégories disponibles</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">@(ViewBag.TotalVoitures ?? 0)</span>
+        <span class="stat-lbl">Véhicules en location</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">@(ViewBag.Disponibles ?? 0)</span>
+        <span class="stat-lbl">Disponibles immédiatement</span>
+    </div>
+</section>
+
+<section class="catalogue">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="section-eyebrow">Notre catalogue en ce moment</span>
+                <h2 class="section-title">Véhicules de location disponibles</h2>
+            </div>
+            <a class="section-link" asp-action="Index" asp-controller="Voiture">Voir toute la flotte &rarr;</a>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">🚗</div>
+                <h3 class="empty-title">Aucun véhicule enregistré pour le moment</h3>
+                <p class="empty-text">
+                    La flotte de notre agence vous attend. Ajoutez votre premier véhicule via le back-office
+                    <a asp-action="Index" asp-controller="Voiture">Flotte de Voitures</a> ou passez à la gestion
+                    via <a asp-action="Index" asp-controller="CategoryVoiture">Catégories</a>.
+                </p>
+                <a class="btn btn-primary" asp-action="Create" asp-controller="Voiture">➕ Ajouter un véhicule</a>
+            </div>
+        }
+        else
+        {
+            <div class="vehicle-grid">
+                @foreach (var voiture in Model)
+                {
+                    <div class="vehicle-card">
+                        <div class="vehicle-card-media">
+                            @if (!string.IsNullOrEmpty(voiture.CategoryVoiture?.ImageUrl))
+                            {
+                                <img src="@voiture.CategoryVoiture.ImageUrl" alt="@voiture.CategoryVoiture.Libelle" class="vehicle-card-img" />
+                            }
+                            <span class="vehicle-badge @(voiture.EstDisponible ? "dispo" : "loue")">
+                                @(voiture.EstDisponible ? "Disponible" : "En location")
+                            </span>
+                        </div>
+                        <div class="vehicle-card-body">
+                            <div class="vehicle-meta">
+                                <span>@(voiture.CategoryVoiture?.Libelle ?? "Sans catégorie")</span>
+                                <span>#@voiture.Id</span>
+                            </div>
+                            <h3 class="vehicle-name">@voiture.Marque @voiture.Modele</h3>
+                            <div class="vehicle-price">
+                                <span class="vehicle-price-num">@voiture.PrixJour.ToString("N1") <span>TND</span></span>
+                                <span class="vehicle-price-sub">/ jour</span>
+                            </div>
+                            <div class="vehicle-foot">
+                                <span class="vehicle-matricule">@voiture.Matricule</span>
+                                <span class="vehicle-year">@voiture.Annee</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
